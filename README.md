@@ -1,0 +1,1 @@
+Some simulator games i tried to make to get better at math and interesting concepts. Currently includes a Boids simulator and a Physics Sandbox

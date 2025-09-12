@@ -1,0 +1,12 @@
+[project]
+name = "SimulatorGames"
+version = "0.1.0"
+description = "SimulatorGames"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+ "arcade==3.2.0",
+ "cairosvg>=2.8.2",
+ "pypresence>=4.3.0",
+ "svgpathtools>=1.7.1",
+]

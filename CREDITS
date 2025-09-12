@@ -1,0 +1,13 @@
+The Roboto Black font used in this project is licensed under the Open Font License. Read assets/fonts/OFL.txt for more information.
+
+Huge Thanks to Python for being the programming language used in this game.
+https://www.python.org/
+
+Huge thanks to Arcade and Pyglet for being the graphical engines used in this game.
+https://arcade.academy/
+https://pyglet.readthedocs.io/en/latest/
+
+Thanks to the following other libraries used in this game:
+pypresence - https://github.com/qwertyquerty/pypresence - Used for Discord Rich Presence
+cairosvg - Used to convert SVG to PNG
+svgpathtools - Used to get paths of SVG files
