@@ -57,6 +57,13 @@ class Game(arcade.gui.UIView):
 
     def create_boid(self, x, y):
         boid = Boid(self.current_boid_num, x, y)
+        
+        boid.w_alignment = self.settings["boid_simulator"]["w_alignment"]
+        boid.w_separation = self.settings["boid_simulator"]["w_separation"]
+        boid.w_cohesion = self.settings["boid_simulator"]["w_cohesion"]
+        boid.large_radius = self.settings["boid_simulator"]["large_radius"]
+        boid.small_radius = self.settings["boid_simulator"]["small_radius"]
+
         self.boid_sprites.append(boid)
         self.current_boid_num += 1
 

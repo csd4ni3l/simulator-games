@@ -18,7 +18,7 @@ class Boid(arcade.Sprite):
         self.small_radius = 100
         self.large_radius = 250
 
-    def calculate_separation(self, neighbours: list[int, arcade.math.Vec2, arcade.math.Vec2]):
+    def calculate_separation(self, neighbours):
         steeraway_vectors = [arcade.math.Vec2(*self.position) - neighbour[2] for neighbour in neighbours]
 
         if not steeraway_vectors:
@@ -26,7 +26,7 @@ class Boid(arcade.Sprite):
 
         return (sum(steeraway_vectors) / len(steeraway_vectors)).normalize()
 
-    def calculate_alignment(self, neighbours: list[int, arcade.math.Vec2, arcade.math.Vec2]):
+    def calculate_alignment(self, neighbours):
         directions = [neighbour[1] for neighbour in neighbours] 
 
         if not directions:
@@ -34,7 +34,7 @@ class Boid(arcade.Sprite):
 
         return (sum(directions) / len(directions)).normalize()
     
-    def calculate_cohesion(self, neighbours: list[int, arcade.math.Vec2, arcade.math.Vec2]):
+    def calculate_cohesion(self, neighbours):
         positions = [neighbour[2] for neighbour in neighbours]
 
         if not positions:
