@@ -52,21 +52,28 @@ class Main(arcade.gui.UIView):
 
         self.title_label = self.box.add(arcade.gui.UILabel(text="Simulator Games", font_name="Roboto", font_size=48))
 
-        self.boid_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Boid Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=150, style=big_button_style))
+        self.boid_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Boid Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 8, style=big_button_style))
         self.boid_simulator_button.on_click = lambda event: self.boid_simulator()
 
-        self.physics_playground_button = self.box.add(arcade.gui.UITextureButton(text="Physics Playground", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=150, style=big_button_style))
+        self.water_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Water Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 8, style=big_button_style))
+        self.water_simulator_button.on_click = lambda event: self.water_simulator()
+
+        self.physics_playground_button = self.box.add(arcade.gui.UITextureButton(text="Physics Playground", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 8, style=big_button_style))
         self.physics_playground_button.on_click = lambda event: self.physics_playground()
 
-        self.settings_button = self.box.add(arcade.gui.UITextureButton(text="Settings", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=150, style=big_button_style))
+        self.settings_button = self.box.add(arcade.gui.UITextureButton(text="Settings", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 8, style=big_button_style))
         self.settings_button.on_click = lambda event: self.settings()
 
     def physics_playground(self):
-        from game.physics_playground import Game
+        from game.physics_playground.game import Game
         self.window.show_view(Game(self.pypresence_client))
 
     def boid_simulator(self):
-        from game.boid_simulator import Game
+        from game.boid_simulator.game import Game
+        self.window.show_view(Game(self.pypresence_client))
+
+    def water_simulator(self):
+        from game.water_simulator.game import Game
         self.window.show_view(Game(self.pypresence_client))
 
     def settings(self):

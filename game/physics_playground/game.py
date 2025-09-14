@@ -1,22 +1,31 @@
-import arcade, arcade.gui, pymunk, pymunk.util, math, time, os, io, cairosvg
+import arcade, arcade.gui, pymunk, pymunk.util, math, time, os, io, cairosvg, json, random
 
 from PIL import Image
 
 from arcade.gui.experimental.scroll_area import UIScrollArea, UIScrollBar
 
+from pymunk.autogeometry import convex_decomposition
+
 from svgpathtools import svg2paths
-from game.body_inventory import BodyInventory
+
+from game.physics_playground.body_inventory import BodyInventory
 
 from utils.constants import menu_background_color, button_style
 from utils.preload import button_texture, button_hovered_texture
 
+class FakeShape():
+    def __init__(self, body):
+        self.body = body
+
+class CustomPhysics(arcade.Sprite):
+    def __init__(self, pymunk_obj, filename):
+        super().__init__(filename, center_x=pymunk_obj.body.position.x, center_y=pymunk_obj.body.position.y)
+        self.pymunk_obj = pymunk_obj
+        
 class SpritePhysics(arcade.Sprite):
     def __init__(self, pymunk_obj, filename):
         super().__init__(filename, center_x=pymunk_obj.body.position.x, center_y=pymunk_obj.body.position.y)
         self.pymunk_obj = pymunk_obj
-        self.origin_x = 0
-        self.origin_y = 0
-
 class PhysicsCoin(SpritePhysics):
     def __init__(self, pymunk_obj, filename):
         super().__init__(pymunk_obj, filename)
@@ -38,10 +47,36 @@ class Game(arcade.gui.UIView):
 
         arcade.set_background_color(arcade.color.WHITE)
 
+        if os.path.exists("data.json"):
+            with open("data.json", "r") as file:
+                self.settings = json.load(file)
+        else:
+            self.settings = {}
+
+        if not "physics_playground" in self.settings:
+            self.settings["physics_playground"] = {
+                "iterations": 50,
+                "gravity_x": 0,
+                "gravity_y": -930,
+
+                "crate_elasticity": 0.5,
+                "crate_friction": 0.9,
+                "crate_mass": 1,
+
+                "coin_elasticity": 0.5,
+                "coin_friction": 0.9,
+                "coin_mass": 1,
+
+                "custom_elasticity": 0.5,
+                "custom_friction": 0.9,
+                "custom_mass": 1
+            }
+
         self.space = pymunk.Space()
 
         self.spritelist: arcade.SpriteList[SpritePhysics] = arcade.SpriteList()
         self.walls = []
+        self.custom_bodies = []
 
         self.custom_pymunk_objs = {}
 
@@ -49,20 +84,24 @@ class Game(arcade.gui.UIView):
         self.last_mouse_position = 0, 0
         self.last_processing_time_update = time.perf_counter()
 
-        self.iterations = 35
+        self.iterations = self.settings["physics_playground"].get("iterations", 35)
         self.space.iterations = self.iterations
 
-        self.gravity_x = 0
-        self.gravity_y = -900
+        self.gravity_x = self.settings["physics_playground"].get("gravity_x", 0)
+        self.gravity_y = self.settings["physics_playground"].get("gravity_y", -930)
         self.space.gravity = (self.gravity_x, self.gravity_y)
 
-        self.crate_elasticity = 0.5
-        self.crate_friction = 0.9
-        self.crate_mass = 1
+        self.crate_elasticity = self.settings["physics_playground"].get("crate_elasticity", 0.5)
+        self.crate_friction = self.settings["physics_playground"].get("crate_friction", 0.9)
+        self.crate_mass = self.settings["physics_playground"].get("crate_mass", 1)
 
-        self.coin_elasticity = 0.5
-        self.coin_friction = 0.9
-        self.coin_mass = 1
+        self.coin_elasticity = self.settings["physics_playground"].get("coin_elasticity", 0.5)
+        self.coin_friction = self.settings["physics_playground"].get("coin_friction", 0.9)
+        self.coin_mass = self.settings["physics_playground"].get("coin_mass", 1)
+
+        self.custom_elasticity = self.settings["physics_playground"].get("custom_elasticity", 0.5)
+        self.custom_friction = self.settings["physics_playground"].get("custom_friction", 0.9)
+        self.custom_mass = self.settings["physics_playground"].get("custom_mass", 1)
 
         self.anchor = self.add_widget(arcade.gui.UIAnchorLayout(size_hint=(1, 1)))
         
@@ -71,25 +110,42 @@ class Game(arcade.gui.UIView):
         self.object_count_label = self.info_box.add(arcade.gui.UILabel(text="Object count: 0", text_color=arcade.color.BLACK))
         self.processing_time_label = self.info_box.add(arcade.gui.UILabel(text="Processing time: 0 ms", text_color=arcade.color.BLACK))
 
-        self.settings_box = self.anchor.add(arcade.gui.UIBoxLayout(space_between=5, align="center", size_hint=(0.2, 1)).with_background(color=arcade.color.GRAY), anchor_x="right", anchor_y="bottom")
+        self.settings_box = self.anchor.add(arcade.gui.UIBoxLayout(align="center", size_hint=(0.2, 1)).with_background(color=arcade.color.GRAY), anchor_x="right", anchor_y="bottom")
         self.settings_title_label = self.settings_box.add(arcade.gui.UILabel(text="Settings", font_size=24))
 
         self.settings_box.add(arcade.gui.UISpace(size_hint=(0, 0.025)))
 
         self.add_setting("Crate Elasticity: {value}", 0, 3, 0.1, "crate_elasticity", "elasticity", PhysicsCrate)
         self.add_setting("Coin Elasticity: {value}", 0, 3, 0.1, "coin_elasticity", "elasticity", PhysicsCoin)
+        self.add_setting("Custom Elasticity: {value}", 0, 3, 0.1, "custom_elasticity", "elasticity", CustomPhysics)
+        
         self.add_setting("Crate Friction: {value}", 0, 10, 0.1, "crate_friction", "friction", PhysicsCrate)
         self.add_setting("Coin Friction: {value}", 0, 10, 0.1, "coin_friction", "friction", PhysicsCoin)
+        self.add_setting("Custom Friction: {value}", 0, 10, 0.1, "custom_friction", "friction", CustomPhysics)
+
         self.add_setting("Crate Mass: {value}kg", 1, 100, 1, "crate_mass", "mass", PhysicsCrate)
         self.add_setting("Coin Mass: {value}kg", 1, 100, 1, "coin_mass", "mass", PhysicsCoin)
+        self.add_setting("Custom Mass: {value}kg", 1, 100, 1, "custom_mass", "mass", CustomPhysics)
 
         self.add_setting("Gravity X: {value}", -900, 900, 100, "gravity_x", on_change=lambda label, value: self.change_gravity(label, value, "x"))
         self.add_setting("Gravity Y: {value}", -1800, 1800, 100, "gravity_y", on_change=lambda label, value: self.change_gravity(label, value, "y"))
-        
+        self.add_setting("Pymunk Iterations: {value}", 1, 200, 1, "iterations", on_change=lambda label, value: self.change_iterations(label, value))
+
+        self.settings_box.add(arcade.gui.UILabel("Inventory", font_size=18))
+
         self.inventory_grid = self.settings_box.add(BodyInventory(self.window.width, self.window.height, "crate", {"crate": ":resources:images/tiles/boxCrate_double.png", "coin": ":resources:images/items/coinGold.png"}))
         
         self.add_custom_body_button = self.settings_box.add(arcade.gui.UITextureButton(text="Add custom body from SVG", size_hint=(1, 0.1), width=self.window.width * 0.2, height=self.window.height * 0.1))
         self.add_custom_body_button.on_click = lambda event: self.custom_body_ui()
+
+    def save_data(self):
+        with open("data.json", "w") as file:
+            file.write(json.dumps(self.settings, indent=4))
+
+    def change_iterations(self, label, value):
+        self.iterations = int(value)
+        self.space.iterations = self.iterations
+        label.text = f"Pymunk Iterations: {self.iterations}"
 
     def change_gravity(self, label, value, gravity_type):
         if gravity_type == "x":
@@ -117,6 +173,8 @@ class Game(arcade.gui.UIView):
 
         setattr(self, local_variable, value)
 
+        self.settings["physics_playground"][local_variable] = value
+
         if pymunk_variable:
             for sprite in self.spritelist:
                 if isinstance(sprite, instance):
@@ -131,7 +189,7 @@ class Game(arcade.gui.UIView):
         self.walls.append(pymunk_obj)
 
     def create_crate(self, x, y, size, mass):
-        pymunk_moment = pymunk.moment_for_box(mass, (size, size))
+        pymunk_moment = pymunk.moment_for_box(1.0, (size, size))
         
         pymunk_body = pymunk.Body(mass, pymunk_moment)
         pymunk_body.position = pymunk.Vec2d(x, y)
@@ -146,7 +204,7 @@ class Game(arcade.gui.UIView):
         self.spritelist.append(sprite)
 
     def create_coin(self, x, y, radius, mass):
-        inertia = pymunk.moment_for_circle(mass, 0, radius, (0, 0))
+        inertia = pymunk.moment_for_circle(1.0, 0, radius, (0, 0))
         
         body = pymunk.Body(mass, inertia)
         body.position = x, y
@@ -173,6 +231,12 @@ class Game(arcade.gui.UIView):
 
             arcade.draw_line(pv1.x, pv1.y, pv2.x, pv2.y, arcade.color.BLACK, 2)
 
+        for body in self.custom_bodies:
+            for shape in body.shapes:
+                if isinstance(shape, pymunk.Poly):
+                    verts = [v.rotated(body.angle) + body.position for v in shape.get_vertices()]
+                    arcade.draw_polygon_filled(verts, arcade.color.BLACK)
+                    
     def on_mouse_press(self, x, y, button, modifiers):
         if button == arcade.MOUSE_BUTTON_LEFT:
             self.last_mouse_position = x, y
@@ -219,7 +283,7 @@ class Game(arcade.gui.UIView):
     def add_custom_body(self, file_path):
         paths, _ = svg2paths(file_path)
 
-        pts = self.sample_path(paths[0], 15)
+        pts = self.sample_path(paths[0], 64)
 
         png_bytes = cairosvg.svg2png(url=file_path, scale=1.0)
         original_image = Image.open(io.BytesIO(png_bytes)).convert("RGBA")
@@ -229,32 +293,36 @@ class Game(arcade.gui.UIView):
         scale_factor = desired_width / original_width
 
         pts = [(x * scale_factor, y * scale_factor) for x, y in pts]
+        
+        try:
+            convex_parts = convex_decomposition(pts, 0.1)
+        except AssertionError:
+            convex_parts = [pymunk.util.convex_hull(pts)]
 
-        hull = pymunk.util.convex_hull(pts)
-        moment = pymunk.moment_for_poly(1.0, hull)
+        total_moment = sum(pymunk.moment_for_poly(1.0, part) for part in convex_parts)
 
         png_bytes = cairosvg.svg2png(url=file_path, scale=scale_factor)
         image = Image.open(io.BytesIO(png_bytes)).convert("RGBA")
         texture = arcade.Texture(image)
 
-        self.custom_pymunk_objs[file_path] = (hull, moment, texture)
+        self.custom_pymunk_objs[file_path] = (convex_parts, total_moment, texture)
         self.inventory_grid.add_item(file_path, texture)
 
         self.clear_custom_body_ui()
 
     def create_custom_body(self, file_path, x, y, mass):
-        hull, moment, image = self.custom_pymunk_objs[file_path]
+        convex_parts, moment, image = self.custom_pymunk_objs[file_path]
 
         body = pymunk.Body(mass, moment)
         body.position = pymunk.Vec2d(x, y)
 
-        shape = pymunk.Poly(body, hull)
-        
-        self.space.add(body, shape)
+        self.space.add(body)
 
-        sprite = SpritePhysics(shape, image)
-        sprite.origin_x = image.width / 2
-        sprite.origin_y = image.height / 2
+        for part in convex_parts:
+            shape = pymunk.Poly(body, part)
+            self.space.add(shape)
+        
+        sprite = CustomPhysics(FakeShape(body), image)
 
         self.spritelist.append(sprite)
 
@@ -326,13 +394,15 @@ class Game(arcade.gui.UIView):
             elif self.inventory_grid.selected_item == "coin":
                 self.create_coin(self.window.mouse.data['x'], self.window.mouse.data['y'], 10, self.coin_mass)
             else:
-                self.create_custom_body(self.inventory_grid.selected_item, self.window.mouse.data['x'], self.window.mouse.data['y'], 1.0)
+                self.create_custom_body(self.inventory_grid.selected_item, self.window.mouse.data['x'], self.window.mouse.data['y'], self.custom_mass)
 
         for sprite in self.spritelist:
-            if sprite.pymunk_obj.body.position.x < 0 or sprite.pymunk_obj.body.position.x > self.window.width * 0.8 or sprite.pymunk_obj.body.position.y < 0:
-                self.space.remove(sprite.pymunk_obj, sprite.pymunk_obj.body)
+            body = sprite.pymunk_obj.body
+            x, y = body.position
 
-                sprite.remove_from_sprite_lists()
+            if x < 0 or x > self.window.width * 0.775 or y < 0:
+                body.position = (random.uniform(self.window.width * 0.1, self.window.width * 0.9), self.window.height * 0.9)
+                body.velocity = (0, 0)
 
         start = time.perf_counter()
         self.space.step(self.window._draw_rate)
@@ -342,8 +412,7 @@ class Game(arcade.gui.UIView):
             self.dragged_shape.shape.body.velocity = 0, 0
 
         for sprite in self.spritelist:
-            sprite.center_x = sprite.pymunk_obj.body.position.x + sprite.origin_x
-            sprite.center_y = sprite.pymunk_obj.body.position.y + sprite.origin_y
+            sprite.position = sprite.pymunk_obj.body.position
             sprite.angle = -math.degrees(sprite.pymunk_obj.body.angle)
 
         self.object_count_label.text = f"Object count: {len(self.spritelist)}"
@@ -356,13 +425,21 @@ class Game(arcade.gui.UIView):
     def on_key_press(self, symbol, modifiers):
         if symbol == arcade.key.ESCAPE:
             arcade.set_background_color(menu_background_color)
+            
+            self.save_data()
+
             from menus.main import Main
             self.window.show_view(Main(self.pypresence_client))
         elif symbol == arcade.key.D:
             self.create_wall((self.window.width * 0.8) / 10, 80, self.window.mouse.data["x"] - (self.window.width * 0.8) / 20, self.window.mouse.data["y"] - 80)
         elif symbol == arcade.key.C:
             for sprite in self.spritelist:
-                self.space.remove(sprite.pymunk_obj, sprite.pymunk_obj.body)
+                if not isinstance(sprite.pymunk_obj, FakeShape):
+                    self.space.remove(sprite.pymunk_obj, sprite.pymunk_obj.body)
+                else:
+                    for shape in sprite.pymunk_obj.body.shapes:
+                        self.space.remove(shape)
+                    self.space.remove(sprite.pymunk_obj.body)
 
             self.spritelist.clear()
 

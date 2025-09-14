@@ -25,7 +25,7 @@ timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 log_filename = f"debug_{timestamp}.log"
 logging.basicConfig(filename=f'{os.path.join(log_dir, log_filename)}', format='%(asctime)s %(name)s %(levelname)s: %(message)s', level=logging.DEBUG)
 
-for logger_name_to_disable in ['arcade', "numba"]:
+for logger_name_to_disable in ['arcade', "pymunk.shapes", "PIL", "Pillow"]:
     logging.getLogger(logger_name_to_disable).propagate = False
     logging.getLogger(logger_name_to_disable).disabled = True
 

@@ -6,6 +6,9 @@ from arcade.gui.widgets.slider import UISliderStyle
 SMALL_RADIUS = 75
 LARGE_RADIUS = 150
 
+WATER_ROWS = 128
+WATER_COLS = 128
+
 menu_background_color = (30, 30, 47)
 log_dir = 'logs'
 discord_presence_id = 1414634708414758972
