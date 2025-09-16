@@ -6,8 +6,6 @@ from arcade.gui.experimental.scroll_area import UIScrollArea, UIScrollBar
 
 from pymunk.autogeometry import convex_decomposition
 
-from svgpathtools import svg2paths
-
 from game.physics_playground.body_inventory import BodyInventory
 
 from utils.constants import menu_background_color, button_style
@@ -282,7 +280,10 @@ class Game(arcade.gui.UIView):
         return pts
 
     def add_custom_body(self, file_path):
+        #add imports here to avoid Windows crash
         import cairosvg
+        from svgpathtools import svg2paths
+
         paths, _ = svg2paths(file_path)
 
         pts = self.sample_path(paths[0], 64)
