@@ -1,4 +1,4 @@
-import arcade, arcade.gui, pymunk, pymunk.util, math, time, os, io, cairosvg, json, random
+import arcade, arcade.gui, pymunk, pymunk.util, math, time, os, io, json, random
 
 from PIL import Image
 
@@ -134,9 +134,10 @@ class Game(arcade.gui.UIView):
         self.settings_box.add(arcade.gui.UILabel("Inventory", font_size=18))
 
         self.inventory_grid = self.settings_box.add(BodyInventory(self.window.width, self.window.height, "crate", {"crate": ":resources:images/tiles/boxCrate_double.png", "coin": ":resources:images/items/coinGold.png"}))
-        
-        self.add_custom_body_button = self.settings_box.add(arcade.gui.UITextureButton(text="Add custom body from SVG", size_hint=(1, 0.1), width=self.window.width * 0.2, height=self.window.height * 0.1))
-        self.add_custom_body_button.on_click = lambda event: self.custom_body_ui()
+        if os.name == "nt:
+            self.add_custom_body_button = self.settings_box.add(arcade.gui.UITextureButton(text="Add custom body from SVG", size_hint=(1, 0.1), width=self.window.width * 0.2, height=self.window.height * 0.1))
+                
+            self.add_custom_body_button.on_click = lambda event: self.custom_body_ui()
 
     def save_data(self):
         with open("data.json", "w") as file:
@@ -281,6 +282,7 @@ class Game(arcade.gui.UIView):
         return pts
 
     def add_custom_body(self, file_path):
+        import cairosvg
         paths, _ = svg2paths(file_path)
 
         pts = self.sample_path(paths[0], 64)
