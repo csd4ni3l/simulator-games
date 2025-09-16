@@ -134,7 +134,7 @@ class Game(arcade.gui.UIView):
         self.settings_box.add(arcade.gui.UILabel("Inventory", font_size=18))
 
         self.inventory_grid = self.settings_box.add(BodyInventory(self.window.width, self.window.height, "crate", {"crate": ":resources:images/tiles/boxCrate_double.png", "coin": ":resources:images/items/coinGold.png"}))
-        if os.name == "nt":
+        if os.name != "nt":
             self.add_custom_body_button = self.settings_box.add(arcade.gui.UITextureButton(text="Add custom body from SVG", size_hint=(1, 0.1), width=self.window.width * 0.2, height=self.window.height * 0.1))
                 
             self.add_custom_body_button.on_click = lambda event: self.custom_body_ui()
@@ -399,12 +399,17 @@ class Game(arcade.gui.UIView):
                 self.create_custom_body(self.inventory_grid.selected_item, self.window.mouse.data['x'], self.window.mouse.data['y'], self.custom_mass)
 
         for sprite in self.spritelist:
-            body = sprite.pymunk_obj.body
-            x, y = body.position
+            x, y = sprite.pymunk_obj.body.position
 
             if x < 0 or x > self.window.width * 0.775 or y < 0:
-                body.position = (random.uniform(self.window.width * 0.1, self.window.width * 0.9), self.window.height * 0.9)
-                body.velocity = (0, 0)
+                if not isinstance(sprite.pymunk_obj, FakeShape):
+                    sprite.remove_from_sprite_lists()
+                    self.space.remove(sprite.pymunk_obj, sprite.pymunk_obj.body)
+                else:
+                    sprite.remove_from_sprite_lists()
+                    for shape in sprite.pymunk_obj.body.shapes:
+                        self.space.remove(shape)
+                    self.space.remove(sprite.pymunk_obj.body)
 
         start = time.perf_counter()
         self.space.step(self.window._draw_rate)
@@ -442,6 +447,7 @@ class Game(arcade.gui.UIView):
                     for shape in sprite.pymunk_obj.body.shapes:
                         self.space.remove(shape)
                     self.space.remove(sprite.pymunk_obj.body)
+
 
             self.spritelist.clear()
 
