@@ -399,6 +399,7 @@ dependencies = [
     { name = "arcade" },
     { name = "cairosvg" },
     { name = "pypresence" },
+    { name = "scipy" },
     { name = "svgpathtools" },
 ]
 
@@ -407,6 +408,7 @@ requires-dist = [
     { name = "arcade", specifier = "==3.2.0" },
     { name = "cairosvg", specifier = ">=2.8.2" },
     { name = "pypresence", specifier = ">=4.3.0" },
+    { name = "scipy", specifier = ">=1.16.1" },
     { name = "svgpathtools", specifier = ">=1.7.1" },
 ]
 

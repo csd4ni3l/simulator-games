@@ -52,16 +52,22 @@ class Main(arcade.gui.UIView):
 
         self.title_label = self.box.add(arcade.gui.UILabel(text="Simulator Games", font_name="Roboto", font_size=48))
 
-        self.boid_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Boid Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 8, style=big_button_style))
+        self.boid_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Boid Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 10, style=big_button_style))
         self.boid_simulator_button.on_click = lambda event: self.boid_simulator()
 
-        self.water_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Water Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 8, style=big_button_style))
+        self.water_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Water Splash Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 10, style=big_button_style))
         self.water_simulator_button.on_click = lambda event: self.water_simulator()
 
-        self.physics_playground_button = self.box.add(arcade.gui.UITextureButton(text="Physics Playground", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 8, style=big_button_style))
+        self.physics_playground_button = self.box.add(arcade.gui.UITextureButton(text="Physics Playground", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 10, style=big_button_style))
         self.physics_playground_button.on_click = lambda event: self.physics_playground()
 
-        self.settings_button = self.box.add(arcade.gui.UITextureButton(text="Settings", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 8, style=big_button_style))
+        self.fourier_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Fourier Drawing Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 10, style=big_button_style))
+        self.fourier_simulator_button.on_click = lambda event: self.fourier_simulator()
+
+        self.chadni_plate_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Chadni Plate Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 10, style=big_button_style))
+        self.chadni_plate_simulator_button.on_click = lambda event: self.chladni_plate_simulator()
+
+        self.settings_button = self.box.add(arcade.gui.UITextureButton(text="Settings", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 10, style=big_button_style))
         self.settings_button.on_click = lambda event: self.settings()
 
     def physics_playground(self):
@@ -74,6 +80,14 @@ class Main(arcade.gui.UIView):
 
     def water_simulator(self):
         from game.water_simulator.game import Game
+        self.window.show_view(Game(self.pypresence_client))
+
+    def fourier_simulator(self):
+        from game.fourier_simulator.game import Game
+        self.window.show_view(Game(self.pypresence_client))
+
+    def chladni_plate_simulator(self):
+        from game.chladni_plate_simulator.game import Game
         self.window.show_view(Game(self.pypresence_client))
 
     def settings(self):

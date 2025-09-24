@@ -8,5 +8,6 @@ dependencies = [
  "arcade==3.2.0",
  "cairosvg>=2.8.2",
  "pypresence>=4.3.0",
+ "scipy>=1.16.1",
  "svgpathtools>=1.7.1",
 ]

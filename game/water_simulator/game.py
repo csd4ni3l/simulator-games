@@ -74,19 +74,6 @@ class Game(arcade.gui.UIView):
 
         self.current_splash_strength = 0
 
-    def save_data(self):
-        self.settings.update({
-            "water_simulator": {
-                "splash_strength": self.splash_strength,
-                "splash_radius": self.splash_radius,
-                "wave_speed": self.wave_speed,
-                "damping": self.damping
-            }
-        })
-
-        with open("data.json", "w") as file:
-            file.write(json.dumps(self.settings, indent=4))
-
     def setup_game(self):
         self.shader_program, self.water_image, self.previous_heights_ssbo, self.current_heights_ssbo = create_shader() 
 
@@ -98,7 +85,7 @@ class Game(arcade.gui.UIView):
         self.image_sprite.scale_x = scale_x
         self.image_sprite.scale_y = scale_y
 
-        grid = array.array('f', [random.uniform(-0.01, 0.01) for _ in range(WATER_ROWS * WATER_COLS)])
+        grid = array.array('f', [random.uniform(-0.1, 0.1) for _ in range(WATER_ROWS * WATER_COLS)])
 
         self.previous_heights_ssbo.set_data(grid.tobytes())
         self.current_heights_ssbo.set_data(grid.tobytes())
@@ -118,19 +105,20 @@ class Game(arcade.gui.UIView):
 
         self.settings["water_simulator"][local_variable] = value
 
-        setattr(self, local_variable, value)
-
     def main_exit(self):
         self.shader_program.delete()
         self.previous_heights_ssbo.delete()
         self.current_heights_ssbo.delete()
+        
+        from menus.main import Main
+        self.window.show_view(Main(self.pypresence_client))
 
     def on_key_press(self, symbol, modifiers):
         if symbol == arcade.key.ESCAPE:
-            self.save_data()
-
-            from menus.main import Main
-            self.window.show_view(Main(self.pypresence_client))
+            with open("data.json", "w") as file:
+                file.write(json.dumps(self.settings, indent=4))
+                
+            self.main_exit()
 
     def on_mouse_press(self, x, y, button, modifiers):        
         col = int(x / (self.window.width * 0.8) * WATER_COLS)
