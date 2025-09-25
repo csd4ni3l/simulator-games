@@ -56,35 +56,28 @@ class Game(arcade.gui.UIView):
             with self.shader_program:
                 self.shader_program["source_count"] = len(self.sources)
                 self.shader_program["k"] = self.settings["chladni_plate_simulator"]["k"]
-                self.shader_program.dispatch(self.plate_image.width, self.plate_image.height, 1)
+                self.shader_program.dispatch(int(self.plate_image.width / 32), int(self.plate_image.height / 32), 1)
 
     def setup(self):
         self.shader_program, self.plate_image, self.sources_ssbo = create_shader(int(self.window.width * 0.8), self.window.height)
 
         self.image_sprite = pyglet.sprite.Sprite(img=self.plate_image)
-
-        scale_x = (self.window.width * 0.8) / self.image_sprite.width
-        scale_y = self.window.height / self.image_sprite.height
-
-        self.image_sprite.scale_x = scale_x
-        self.image_sprite.scale_y = scale_y
-
-    def add_source(self):
-        tx = self.window.width * 0.4
-        ty = self.window.height / 2
         
-        self.sources = np.vstack([self.sources, [tx, ty]]).astype(np.float32)
+    def add_source(self):
+        self.sources = np.vstack([self.sources, [self.window.width * 0.4, self.window.height / 2]]).astype(np.float32)
 
         self.needs_redraw = True
         
-    def on_mouse_drag(self, x, y, dx, dy, _buttons, _modifiers):
+    def on_mouse_press(self, x, y, button, modifiers):
         if not self.dragged_source:
             for i, source in enumerate(self.sources.reshape(-1, 2)):
                 if arcade.math.Vec2(x, y).distance(arcade.math.Vec2(*source)) <= 10:
                     self.dragged_source = i
                     break
 
-        self.sources[self.dragged_source] = [x, y]
+    def on_mouse_drag(self, x, y, dx, dy, _buttons, _modifiers):
+        if self.dragged_source is not None:
+            self.sources[self.dragged_source] = [x, y]
 
     def on_mouse_release(self, x, y, button, modifiers):
         self.dragged_source = None

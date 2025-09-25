@@ -11,7 +11,7 @@ layout (std430, binding = 3) buffer Sources {
 uniform int source_count;
 uniform float k;
 
-layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 layout (location = 0, rgba32f) uniform image2D img_output;
 
 void main() {
