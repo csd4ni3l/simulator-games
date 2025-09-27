@@ -64,8 +64,8 @@ class Main(arcade.gui.UIView):
         self.fourier_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Fourier Drawing Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 12, style=big_button_style))
         self.fourier_simulator_button.on_click = lambda event: self.fourier_simulator()
 
-        self.chadni_plate_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Chadni Plate Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 12, style=big_button_style))
-        self.chadni_plate_simulator_button.on_click = lambda event: self.chladni_plate_simulator()
+        self.chladni_plate_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Chladni Plate Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 12, style=big_button_style))
+        self.chladni_plate_simulator_button.on_click = lambda event: self.chladni_plate_simulator()
 
         self.lissajous_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Lissajous Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 12, style=big_button_style))
         self.lissajous_simulator_button.on_click = lambda event: self.lissajous_simulator()
