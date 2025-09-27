@@ -73,6 +73,9 @@ class Main(arcade.gui.UIView):
         self.voronoi_diagram_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Voronoi Diagram Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 12, style=big_button_style))
         self.voronoi_diagram_simulator_button.on_click = lambda event: self.voronoi_diagram_simulator()
 
+        self.lorenz_attractor_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Lorenz Attractor Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 12, style=big_button_style))
+        self.lorenz_attractor_simulator_button.on_click = lambda event: self.lorenz_attractor_simulator()
+
         self.settings_button = self.box.add(arcade.gui.UITextureButton(text="Settings", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 12, style=big_button_style))
         self.settings_button.on_click = lambda event: self.settings()
 
@@ -102,6 +105,10 @@ class Main(arcade.gui.UIView):
 
     def voronoi_diagram_simulator(self):
         from game.voronoi_diagram_simulator.game import Game
+        self.window.show_view(Game(self.pypresence_client))
+
+    def lorenz_attractor_simulator(self):
+        from game.lorenz_attractor_simulator.game import Game
         self.window.show_view(Game(self.pypresence_client))
 
     def settings(self):

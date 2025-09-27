@@ -48,7 +48,7 @@ class Game(arcade.gui.UIView):
         self.add_setting("Edge Thickness: {value}", 0, 0.1, 0.01, "edge_thickness")
         self.add_setting("Edge Smoothness: {value}", 0, 0.1, 0.01, "edge_smoothness")
 
-        self.add_point_button = self.settings_box.add(arcade.gui.UITextureButton(text="Add point", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width * 0.2))
+        self.add_point_button = self.settings_box.add(arcade.gui.UITextureButton(text="Add point", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width * 0.2, style=button_style))
         self.add_point_button.on_click = lambda event: self.add_point()
 
         self.setup()
