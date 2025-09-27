@@ -52,31 +52,34 @@ class Main(arcade.gui.UIView):
 
         self.title_label = self.box.add(arcade.gui.UILabel(text="Simulator Games", font_name="Roboto", font_size=48))
 
-        self.boid_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Boid Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 12, style=big_button_style))
+        self.boid_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Boid Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 14, style=big_button_style))
         self.boid_simulator_button.on_click = lambda event: self.boid_simulator()
 
-        self.water_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Water Splash Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 12, style=big_button_style))
+        self.water_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Water Splash Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 14, style=big_button_style))
         self.water_simulator_button.on_click = lambda event: self.water_simulator()
 
-        self.physics_playground_button = self.box.add(arcade.gui.UITextureButton(text="Physics Playground", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 12, style=big_button_style))
+        self.physics_playground_button = self.box.add(arcade.gui.UITextureButton(text="Physics Playground", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 14, style=big_button_style))
         self.physics_playground_button.on_click = lambda event: self.physics_playground()
 
-        self.fourier_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Fourier Drawing Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 12, style=big_button_style))
+        self.fourier_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Fourier Drawing Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 14, style=big_button_style))
         self.fourier_simulator_button.on_click = lambda event: self.fourier_simulator()
 
-        self.chladni_plate_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Chladni Plate Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 12, style=big_button_style))
+        self.chladni_plate_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Chladni Plate Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 14, style=big_button_style))
         self.chladni_plate_simulator_button.on_click = lambda event: self.chladni_plate_simulator()
 
-        self.lissajous_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Lissajous Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 12, style=big_button_style))
+        self.lissajous_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Lissajous Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 14, style=big_button_style))
         self.lissajous_simulator_button.on_click = lambda event: self.lissajous_simulator()
 
-        self.voronoi_diagram_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Voronoi Diagram Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 12, style=big_button_style))
+        self.voronoi_diagram_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Voronoi Diagram Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 14, style=big_button_style))
         self.voronoi_diagram_simulator_button.on_click = lambda event: self.voronoi_diagram_simulator()
 
-        self.lorenz_attractor_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Lorenz Attractor Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 12, style=big_button_style))
+        self.lorenz_attractor_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Lorenz Attractor Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 14, style=big_button_style))
         self.lorenz_attractor_simulator_button.on_click = lambda event: self.lorenz_attractor_simulator()
 
-        self.settings_button = self.box.add(arcade.gui.UITextureButton(text="Settings", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 12, style=big_button_style))
+        self.spirograph_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Spirograph Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 14, style=big_button_style))
+        self.spirograph_simulator_button.on_click = lambda event: self.spirograph_simulator()
+
+        self.settings_button = self.box.add(arcade.gui.UITextureButton(text="Settings", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 14, style=big_button_style))
         self.settings_button.on_click = lambda event: self.settings()
 
     def physics_playground(self):
@@ -109,6 +112,10 @@ class Main(arcade.gui.UIView):
 
     def lorenz_attractor_simulator(self):
         from game.lorenz_attractor_simulator.game import Game
+        self.window.show_view(Game(self.pypresence_client))
+
+    def spirograph_simulator(self):
+        from game.spirograph_simulator.game import Game
         self.window.show_view(Game(self.pypresence_client))
 
     def settings(self):
