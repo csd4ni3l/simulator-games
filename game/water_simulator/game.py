@@ -1,34 +1,19 @@
 import arcade, arcade.gui, pyglet.gl, array, random, os, json
 
 from utils.constants import WATER_ROWS, WATER_COLS
+
 from game.water_simulator.shader import create_shader
+from game.base import BaseGame
 
-class Game(arcade.gui.UIView):
+class Game(BaseGame):
     def __init__(self, pypresence_client):
-        super().__init__()
-        
-        self.pypresence_client = pypresence_client
-        self.pypresence_client.update(state="Playing a simulator", details="Water Simulator")
-
-        self.anchor = self.add_widget(arcade.gui.UIAnchorLayout(size_hint=(1, 1)))
-
-        self.settings_box = self.anchor.add(arcade.gui.UIBoxLayout(align="center", size_hint=(0.2, 1)).with_background(color=arcade.color.GRAY), anchor_x="right", anchor_y="bottom")
-        self.settings_label = self.settings_box.add(arcade.gui.UILabel(text="Settings", font_size=24))
-
-        if os.path.exists("data.json"):
-            with open("data.json", "r") as file:
-                self.settings = json.load(file)
-        else:
-            self.settings = {}
-
-        if not "water_simulator" in self.settings:
-            self.settings["water_simulator"] = {
+        super().__init__(pypresence_client, "Water Simulator", "water_simulator", {
                 "splash_strength": 0.1,
                 "splash_radius": 3,
                 "wave_speed": 1,
                 "damping": 0.02
-            }
-
+        })
+        
         self.splash_row = 0
         self.splash_col = 0
         self.current_splash_strength = 0
@@ -41,8 +26,6 @@ class Game(arcade.gui.UIView):
 
     def on_show_view(self):
         super().on_show_view()
-
-        self.settings_box.add(arcade.gui.UISpace(height=self.window.height / 75))
 
         self.add_setting("Splash Strength: {value}", 0.1, 2.0, 0.1, "splash_strength")
         self.add_setting("Splash Radius: {value}", 0.5, 10, 0.5, "splash_radius")
@@ -90,35 +73,17 @@ class Game(arcade.gui.UIView):
         self.previous_heights_ssbo.set_data(grid.tobytes())
         self.current_heights_ssbo.set_data(grid.tobytes())
 
-    def add_setting(self, text, min_value, max_value, step, local_variable, on_change=None):
-        label = self.settings_box.add(arcade.gui.UILabel(text.format(value=getattr(self, local_variable))))
-        slider = self.settings_box.add(arcade.gui.UISlider(value=getattr(self, local_variable), min_value=min_value, max_value=max_value, step=step))
-        slider._render_steps = lambda surface: None
-
-        if on_change:
-            slider.on_change = lambda event, label=label: on_change(label, event.new_value)
-        else:
-            slider.on_change = lambda event, label=label: self.change_value(label, text, local_variable, event.new_value)
-
-    def change_value(self, label, text, local_variable, value):
-        label.text = text.format(value=value)
-
-        self.settings["water_simulator"][local_variable] = value
-
-    def main_exit(self):
-        self.shader_program.delete()
-        self.previous_heights_ssbo.delete()
-        self.current_heights_ssbo.delete()
-        
-        from menus.main import Main
-        self.window.show_view(Main(self.pypresence_client))
-
     def on_key_press(self, symbol, modifiers):
-        if symbol == arcade.key.ESCAPE:
+        if symbol == arcade.key.ESCAPE: # overwrite to remove shader program and SSBOs
+            self.shader_program.delete()
+            self.previous_heights_ssbo.delete()
+            self.current_heights_ssbo.delete()
+
             with open("data.json", "w") as file:
                 file.write(json.dumps(self.settings, indent=4))
-                
-            self.main_exit()
+            
+            from menus.main import Main
+            self.window.show_view(Main(self.pypresence_client))
 
     def on_mouse_press(self, x, y, button, modifiers):        
         col = int(x / (self.window.width * 0.8) * WATER_COLS)

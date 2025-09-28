@@ -1,4 +1,4 @@
-import arcade, arcade.gui, pymunk, pymunk.util, math, time, os, io, json, random
+import arcade, arcade.gui, pymunk, pymunk.util, math, time, os, io, json
 
 from PIL import Image
 
@@ -7,6 +7,7 @@ from arcade.gui.experimental.scroll_area import UIScrollArea, UIScrollBar
 from pymunk.autogeometry import convex_decomposition
 
 from game.physics_playground.body_inventory import BodyInventory
+from game.base import BaseGame
 
 from utils.constants import menu_background_color, button_style
 from utils.preload import button_texture, button_hovered_texture
@@ -36,23 +37,9 @@ class PhysicsCrate(SpritePhysics):
         self.width = width
         self.height = height
 
-class Game(arcade.gui.UIView):
+class Game(BaseGame):
     def __init__(self, pypresence_client):
-        super().__init__()
-
-        self.pypresence_client = pypresence_client
-        self.pypresence_client.update(state='Playing a simulator', details='Physics Playground', start=self.pypresence_client.start_time)
-
-        arcade.set_background_color(arcade.color.WHITE)
-
-        if os.path.exists("data.json"):
-            with open("data.json", "r") as file:
-                self.settings = json.load(file)
-        else:
-            self.settings = {}
-
-        if not "physics_playground" in self.settings:
-            self.settings["physics_playground"] = {
+        super().__init__(pypresence_client, "Physics Playground", "physics_playground", {
                 "iterations": 50,
                 "gravity_x": 0,
                 "gravity_y": -930,
@@ -68,7 +55,9 @@ class Game(arcade.gui.UIView):
                 "custom_elasticity": 0.5,
                 "custom_friction": 0.9,
                 "custom_mass": 1
-            }
+        })
+
+        arcade.set_background_color(arcade.color.WHITE)
 
         self.space = pymunk.Space()
 
@@ -101,17 +90,10 @@ class Game(arcade.gui.UIView):
         self.custom_friction = self.settings["physics_playground"].get("custom_friction", 0.9)
         self.custom_mass = self.settings["physics_playground"].get("custom_mass", 1)
 
-        self.anchor = self.add_widget(arcade.gui.UIAnchorLayout(size_hint=(1, 1)))
-        
         self.info_box = self.anchor.add(arcade.gui.UIBoxLayout(space_between=3, align="left"), anchor_x="left", anchor_y="top")
         self.fps_label = self.info_box.add(arcade.gui.UILabel(text="FPS: 60", text_color=arcade.color.BLACK))
         self.object_count_label = self.info_box.add(arcade.gui.UILabel(text="Object count: 0", text_color=arcade.color.BLACK))
         self.processing_time_label = self.info_box.add(arcade.gui.UILabel(text="Processing time: 0 ms", text_color=arcade.color.BLACK))
-
-        self.settings_box = self.anchor.add(arcade.gui.UIBoxLayout(align="center", size_hint=(0.2, 1)).with_background(color=arcade.color.GRAY), anchor_x="right", anchor_y="bottom")
-        self.settings_title_label = self.settings_box.add(arcade.gui.UILabel(text="Settings", font_size=24))
-
-        self.settings_box.add(arcade.gui.UISpace(size_hint=(0, 0.025)))
 
         self.add_setting("Crate Elasticity: {value}", 0, 3, 0.1, "crate_elasticity", "elasticity", PhysicsCrate)
         self.add_setting("Coin Elasticity: {value}", 0, 3, 0.1, "coin_elasticity", "elasticity", PhysicsCoin)
@@ -137,10 +119,6 @@ class Game(arcade.gui.UIView):
                 
             self.add_custom_body_button.on_click = lambda event: self.custom_body_ui()
 
-    def save_data(self):
-        with open("data.json", "w") as file:
-            file.write(json.dumps(self.settings, indent=4))
-
     def change_iterations(self, label, value):
         self.iterations = int(value)
         self.space.iterations = self.iterations
@@ -155,7 +133,7 @@ class Game(arcade.gui.UIView):
         self.space.gravity = pymunk.Vec2d(self.gravity_x, self.gravity_y)
         label.text = f"Gravity {gravity_type.capitalize()}: {value}"
 
-    def add_setting(self, text, min_value, max_value, step, local_variable, pymunk_variable=None, instance=None, on_change=None):
+    def add_setting(self, text, min_value, max_value, step, local_variable, pymunk_variable=None, instance=None, on_change=None): # overwrite since very different
         label = self.settings_box.add(arcade.gui.UILabel(text.format(value=getattr(self, local_variable))))
         slider = self.settings_box.add(arcade.gui.UISlider(value=getattr(self, local_variable), min_value=min_value, max_value=max_value, step=step, size_hint=(1, 0.05)))
         slider._render_steps = lambda surface: None
@@ -167,7 +145,7 @@ class Game(arcade.gui.UIView):
         else:
             slider.on_change = lambda event, label=label: self.change_value(label, text, local_variable, event.new_value)
 
-    def change_value(self, label, text, local_variable, value, pymunk_variable=None, instance=None):
+    def change_value(self, label, text, local_variable, value, pymunk_variable=None, instance=None): # overwrite since very different
         label.text = text.format(value=value)
 
         setattr(self, local_variable, value)
@@ -431,10 +409,11 @@ class Game(arcade.gui.UIView):
             self.processing_time_label.text = f"Processing time: {round((current_time - start) * 1000, 2)} ms"
 
     def on_key_press(self, symbol, modifiers):
-        if symbol == arcade.key.ESCAPE:
+        if symbol == arcade.key.ESCAPE: 
             arcade.set_background_color(menu_background_color)
-            
-            self.save_data()
+
+            with open("data.json", "w") as file:
+                file.write(json.dumps(self.settings, indent=4))            
 
             from menus.main import Main
             self.window.show_view(Main(self.pypresence_client))
@@ -448,7 +427,6 @@ class Game(arcade.gui.UIView):
                     for shape in sprite.pymunk_obj.body.shapes:
                         self.space.remove(shape)
                     self.space.remove(sprite.pymunk_obj.body)
-
 
             self.spritelist.clear()
 

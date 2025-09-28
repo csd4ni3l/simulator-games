@@ -82,6 +82,9 @@ class Main(arcade.gui.UIView):
         self.double_pendulum_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Double Pendulum Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 16, style=big_button_style))
         self.double_pendulum_simulator_button.on_click = lambda event: self.double_pendulum_simulator()
 
+        self.delaunay_simulator_button = self.box.add(arcade.gui.UITextureButton(text="Delaunay Simulator", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 16, style=big_button_style))
+        self.delaunay_simulator_button.on_click = lambda event: self.delaunay_simulator()
+
         self.settings_button = self.box.add(arcade.gui.UITextureButton(text="Settings", texture=button_texture, texture_hovered=button_hovered_texture, width=self.window.width / 2, height=self.window.height / 16, style=big_button_style))
         self.settings_button.on_click = lambda event: self.settings()
 
@@ -123,6 +126,10 @@ class Main(arcade.gui.UIView):
 
     def double_pendulum_simulator(self):
         from game.double_pendulum_simulator.game import Game
+        self.window.show_view(Game(self.pypresence_client))
+
+    def delaunay_simulator(self):
+        from game.delaunay_simulator.game import Game
         self.window.show_view(Game(self.pypresence_client))
 
     def settings(self):

@@ -1,36 +1,18 @@
 import arcade, arcade.gui, json, os, math
 
-from utils.constants import button_style
-from utils.preload import button_texture, button_hovered_texture
+from game.base import BaseGame
 
-class Game(arcade.gui.UIView):
+class Game(BaseGame):
     def __init__(self, pypresence_client):
-        super().__init__()
-
-        self.pypresence_client = pypresence_client
-        self.pypresence_client.update(state="Playing a simulator", details="Double Pendulum Simulator")
-
-        self.anchor = self.add_widget(arcade.gui.UIAnchorLayout(size_hint=(1, 1)))
-
-        self.settings_box = self.anchor.add(arcade.gui.UIBoxLayout(align="center", size_hint=(0.2, 1)).with_background(color=arcade.color.GRAY), anchor_x="right", anchor_y="bottom")
-        self.settings_label = self.settings_box.add(arcade.gui.UILabel(text="Settings", font_size=24))
-
-        if os.path.exists("data.json"):
-            with open("data.json", "r") as file:
-                self.settings = json.load(file)
-        else:
-            self.settings = {}
-
-        if not "double_pendulum_simulator" in self.settings:
-            self.settings["double_pendulum_simulator"] = {
-                "length_a": 200,
-                "length_b": 200,
-                "mass_a": 40,
-                "mass_b": 40,
-                "gravity": 9.81,
-                "speed": 1.0,
-                "trail_size": 500
-            }
+        super().__init__(pypresence_client, "Double Pendulum Simulator", "double_pendulum_simulator", {
+            "length_a": 200,
+            "length_b": 200,
+            "mass_a": 40,
+            "mass_b": 40,
+            "gravity": 9.81,
+            "speed": 1.0,
+            "trail_size": 500
+        })
 
         self.theta_a, self.theta_b = math.pi / 2, math.pi / 2
         self.omega_a, self.omega_b = 0, 0
@@ -48,18 +30,6 @@ class Game(arcade.gui.UIView):
         self.add_setting("Gravity: {value}", 0, 25, 0.01, "gravity")
         self.add_setting("Speed: {value}", 1, 100, 1, "speed")
         self.add_setting("Trail Size: {value}", 0, 5000, 50, "trail_size")
-
-    def add_setting(self, text, min_value, max_value, step, settings_key):
-        label = self.settings_box.add(arcade.gui.UILabel(text.format(value=self.settings["double_pendulum_simulator"][settings_key])))
-        slider = self.settings_box.add(arcade.gui.UISlider(value=self.settings["double_pendulum_simulator"][settings_key], min_value=min_value, max_value=max_value, step=step))
-        slider._render_steps = lambda surface: None
-
-        slider.on_change = lambda event, label=label: self.change_value(label, text, settings_key, event.new_value)
-
-    def change_value(self, label, text, settings_key, value):
-        label.text = text.format(value=value)
-
-        self.settings["double_pendulum_simulator"][settings_key] = value
 
     def on_draw(self):
         super().on_draw()
@@ -125,11 +95,3 @@ class Game(arcade.gui.UIView):
                     self.trace = self.trace[-int(current_settings["trail_size"]):]
             else:
                 self.trace = []
-
-    def on_key_press(self, symbol, modifiers):
-        if symbol == arcade.key.ESCAPE:
-            with open("data.json", "w") as file:
-                file.write(json.dumps(self.settings, indent=4))
-
-            from menus.main import Main
-            self.window.show_view(Main(self.pypresence_client))
