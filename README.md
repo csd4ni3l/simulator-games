@@ -12,6 +12,8 @@ Currently includes:
 - Delaunay Triangulation simulator
 - Double Pendulum simulator
 
+Demo video included as demo.mp4, but the video is very choppy for some reason, even with OBS set to 1280x720, so sorry for that.
+
 I wanted to add a Triple Pendulum Simulator but it was too hard.
 
 The Water Simulator simulates 2d water splashes.
