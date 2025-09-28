@@ -14,7 +14,7 @@ Currently includes:
 
 Demo video included as demo.mp4, but the video is very choppy for some reason, even with OBS set to 1280x720, so sorry for that.
 
-https://github.com/user-attachments/assets/f4540c5b-99e7-430f-88e6-1098c0d21db7
+https://github.com/user-attachments/assets/73ad90c4-f4fd-4030-abea-a73a81b48ac9
 
 I wanted to add a Triple Pendulum Simulator but it was too hard.
 
