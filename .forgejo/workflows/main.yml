@@ -20,9 +20,6 @@ jobs:
         run: |
           ccache --set-config=max_size=1G
           ccache --set-config=compression=true
-          echo "CC=ccache gcc" >> $GITHUB_ENV
-          echo "CXX=ccache g++" >> $GITHUB_ENV
-          echo "CCACHE_DIR=$HOME/.cache/ccache" >> $GITHUB_ENV
       - name: Restore ccache
         uses: https://data.forgejo.org/actions/cache@v3
         with:
