@@ -37,11 +37,6 @@ jobs:
             --output-dir=build \
             --disable-plugins=tk-inter,multiprocessing,gi \
             run.py
-      - name: Save Nuitka cache
-        uses: https://data.forgejo.org/actions/cache/save@v3
-        with:
-          path: ~/.cache/Nuitka
-          key: nuitka-linux-py3.11-${{ github.sha }}
       - name: Zip
         run: |
           BUILD_DIR=$(find . -maxdepth 3 -type d -name "*.dist" | head -n 1)
