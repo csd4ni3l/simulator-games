@@ -14,8 +14,23 @@ jobs:
           architecture: x64
           cache: pip
           cache-dependency-path: "**/requirements*.txt"
-      - name: Update package lists and install patchelf
-        run: sudo apt update && sudo apt install -y patchelf
+      - name: Update package lists and install patchelf and ccache
+        run: sudo apt update && sudo apt install -y patchelf ccache
+      - name: Configure ccache
+        run: |
+          ccache --set-config=max_size=1G
+          ccache --set-config=compression=true
+          echo "CC=ccache gcc" >> $GITHUB_ENV
+          echo "CXX=ccache g++" >> $GITHUB_ENV
+          echo "CCACHE_DIR=$HOME/.cache/ccache" >> $GITHUB_ENV
+      - name: Restore ccache
+        uses: https://data.forgejo.org/actions/cache@v3
+        with:
+          path: ~/.cache/ccache
+          key: ccache-linux-py3.11-${{ github.sha }}
+          restore-keys: |
+            ccache-linux-py3.11-
+            ccache-linux-
       - name: Install Python dependencies
         run: pip install -r requirements.txt nuitka
       - name: Restore Nuitka cache
@@ -37,6 +52,8 @@ jobs:
             --output-dir=build \
             --disable-plugins=tk-inter,multiprocessing,gi \
             run.py
+      - name: Print ccache stats
+        run: ccache --show-stats
       - name: Zip
         run: |
           BUILD_DIR=$(find . -maxdepth 3 -type d -name "*.dist" | head -n 1)
