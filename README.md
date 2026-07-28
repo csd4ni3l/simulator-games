@@ -25,3 +25,8 @@ The other simulations i picked in my opinion look really cool and you can custom
 
 On some DEs (for example, KDE), you might need to adjust scaling settings, since the library uses X11.
 If that happens, manually change the resolution to 1600x900 or lower, or set fullscreen to True in the settings.json file.
+## Mirrors
+
+[![Forgejo](https://img.shields.io/badge/Forgejo-git.csd4ni3l.hu-1e90ff)](https://git.csd4ni3l.hu/csd4ni3l/simulator-games)
+[![GitHub](https://img.shields.io/badge/GitHub-github.com-181717)](https://github.com/csd4ni3l/simulator-games)
+[![Codeberg](https://img.shields.io/badge/Codeberg-codeberg.org-2185D0)](https://codeberg.org/csd4ni3l/simulator-games)
