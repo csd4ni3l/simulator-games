@@ -54,7 +54,17 @@ jobs:
         run: ccache --show-stats
       - name: Zip
         run: |
-          zip -j simulator_games_linux.zip build/SimulatorGames.bin
+          set -euo pipefail
+          # The onefile artifact has no extension; Nuitka only keeps a .bin copy
+          # inside the intermediate <script>.dist directory, which is not shipped.
+          BIN="build/SimulatorGames"
+          if [ ! -f "$BIN" ]; then
+            BIN=$(find build -maxdepth 1 -type f \( -name "SimulatorGames" -o -name "SimulatorGames.bin" \) | head -n 1)
+          fi
+          test -n "$BIN" && test -f "$BIN"
+          [ "$BIN" = "build/SimulatorGames" ] || mv -- "$BIN" "build/SimulatorGames"
+          zip -j simulator_games_linux.zip "build/SimulatorGames"
+          rm -rf build/*.dist build/*.build
       - name: Release
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
