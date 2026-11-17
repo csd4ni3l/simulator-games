@@ -2,21 +2,21 @@
 #    uv pip compile pyproject.toml -o requirements.txt
 arcade==3.3.3
     # via simulatorgames (pyproject.toml)
-attrs==25.3.0
+attrs==26.1.0
     # via pytiled-parser
 cairocffi==1.7.1
     # via cairosvg
-cairosvg==2.8.2
+cairosvg==2.9.1
     # via simulatorgames (pyproject.toml)
-cffi==1.17.1
+cffi==2.1.1
     # via
     #   cairocffi
     #   pymunk
-cssselect2==0.8.0
+cssselect2==0.10.1
     # via cairosvg
 defusedxml==0.7.1
     # via cairosvg
-numpy==2.3.3
+numpy==2.5.5
     # via
     #   scipy
     #   svgpathtools
@@ -24,31 +24,31 @@ pillow==11.3.0
     # via
     #   arcade
     #   cairosvg
-pycparser==2.22
+pycparser==3.12
     # via cffi
-pyglet==2.1.6
+pyglet==2.1.19
     # via arcade
 pymunk==6.9.0
     # via arcade
-pypresence==4.3.0
+pypresence==4.6.2
     # via simulatorgames (pyproject.toml)
 pytiled-parser==2.2.9
     # via arcade
-scipy==1.16.2
+scipy==1.18.1
     # via
     #   simulatorgames (pyproject.toml)
     #   svgpathtools
-svgpathtools==1.7.1
+svgpathtools==1.8.0
     # via simulatorgames (pyproject.toml)
 svgwrite==1.4.3
     # via svgpathtools
-tinycss2==1.4.0
+tinycss2==1.5.1
     # via
     #   cairosvg
     #   cssselect2
-typing-extensions==4.14.1
+typing-extensions==4.16.0
     # via pytiled-parser
-webencodings==0.5.1
+webencodings==0.6.1
     # via
     #   cssselect2
     #   tinycss2
