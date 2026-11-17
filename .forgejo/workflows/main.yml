@@ -44,7 +44,8 @@ jobs:
             --assume-yes-for-downloads \
             --include-data-dir=assets=assets \
             --include-data-files=CREDITS=CREDITS \
-            --mode=standalone \
+            --mode=onefile \
+            --output-filename=SimulatorGames \
             --nofollow-import-to="*tk*,_codecs,encodings,multiprocessing,gi" \
             --output-dir=build \
             --disable-plugins=tk-inter,multiprocessing,gi \
@@ -53,8 +54,7 @@ jobs:
         run: ccache --show-stats
       - name: Zip
         run: |
-          BUILD_DIR=$(find . -maxdepth 3 -type d -name "*.dist" | head -n 1)
-          zip -r simulator_games_linux.zip "$BUILD_DIR"
+          zip -j simulator_games_linux.zip build/SimulatorGames.bin
       - name: Release
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
