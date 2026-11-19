@@ -1,8 +1,12 @@
-import arcade, arcade.math, random, math
+import arcade, arcade.math, random, math, os
+
+# Get the directory where this module is located
+_module_dir = os.path.dirname(os.path.abspath(__file__))
+_assets_dir = os.path.join(os.path.dirname(os.path.dirname(_module_dir)), 'assets')
 
 class Boid(arcade.Sprite):
     def __init__(self, boid_num, x, y):
-        super().__init__(arcade.load_texture("assets/graphics/boid.png"), center_x=x, center_y=y)
+        super().__init__(arcade.load_texture(os.path.join(_assets_dir, 'graphics', 'boid.png')), center_x=x, center_y=y)
 
         random_angle = random.randint(0, 361)
 
